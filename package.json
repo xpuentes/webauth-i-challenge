@@ -2,6 +2,9 @@
   "name": "webauth-i-challenge",
   "version": "1.0.0",
   "main": "index.js",
+  "scripts": {
+    "server": "nodemon index.js"
+  },
   "repository": "https://github.com/xpuentes/webauth-i-challenge.git",
   "license": "MIT",
   "dependencies": {
