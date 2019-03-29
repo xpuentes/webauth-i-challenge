@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs');
 const session = require('express-session');
 
 const db = require('./database/dbConfig.js');
-const Users = require('./users/users-modal.js');
+const Users = require('./users/users-model.js');
 
 const server = express();
 
@@ -47,6 +47,7 @@ server.post('/api/login', (req, res) => {
        .first()
        .then(user => {
          if(user && bcrypt.compareSync(password, user.password)){
+           req.session.username = user.username;
            res.status(200).json({message: 'Logged in!'});
          }
          else{
