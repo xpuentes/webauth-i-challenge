@@ -64,4 +64,20 @@ router.get('/users', restricted, (req, res) => {
        });
 });
 
+router.get('/logout', (req, res) => {
+  if(req.session){
+    req.session.destroy(err => {
+      if(err){
+        res.send('Unable to logout!');
+      }
+      else{
+        res.send('You have logged out!')
+      }
+    });
+  }
+  else{
+    res.end();
+  }
+});
+
 module.exports = router;
