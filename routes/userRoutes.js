@@ -42,7 +42,7 @@ router.post('/login', (req, res) => {
        .first()
        .then(user => {
          if(user && bcrypt.compareSync(password, user.password)){
-           req.session.user = user;
+           req.session.user = user.username;
            res.status(200).json({message: 'Logged in!'});
          }
          else{
@@ -71,7 +71,7 @@ router.get('/logout', (req, res) => {
         res.send('Unable to logout!');
       }
       else{
-        res.send('You have logged out!')
+        res.send('You have logged out!');
       }
     });
   }
