@@ -1,7 +1,23 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const session = require('express-session');
 const Users = require('../users/users-model');
+const restricted = require('../routes/restricted-middleware');
 const router = express.Router();
+
+const sessionConfig = {
+  name: 'notsession', // default is connect.sid
+  secret: 'nobody tosses a dwarf!',
+  cookie: {
+    maxAge: 1 * 24 * 60 * 60 * 1000,
+    secure: false, // only set cookies over https. Server will not send back a cookie over http.
+  }, // 1 day in milliseconds
+  httpOnly: true, // don't let JS code access cookies. Browser extensions run JS code on your browser!
+  resave: false,
+  saveUninitialized: false,
+};
+
+router.use(session(sessionConfig));
 
 router.use(express.json());
 
@@ -22,11 +38,11 @@ router.post('/register', (req, res) => {
 router.post('/login', (req, res) => {
   let { username, password } = req.body;
 
-  Users.findUser({username})
+  Users.findUser({ username })
        .first()
        .then(user => {
          if(user && bcrypt.compareSync(password, user.password)){
-           //req.session.username = user.username;
+           req.session.user = user;
            res.status(200).json({message: 'Logged in!'});
          }
          else{
@@ -38,7 +54,7 @@ router.post('/login', (req, res) => {
        });
 });
 
-router.get('/users', (req, res) => {
+router.get('/users', restricted, (req, res) => {
   Users.getUsers()
        .then(users => {
          res.json(users);
@@ -46,6 +62,22 @@ router.get('/users', (req, res) => {
        .catch(err => {
          res.status(500).json(err);
        });
+});
+
+router.get('/logout', (req, res) => {
+  if(req.session){
+    req.session.destroy(err => {
+      if(err){
+        res.send('Unable to logout!');
+      }
+      else{
+        res.send('You have logged out!')
+      }
+    });
+  }
+  else{
+    res.end();
+  }
 });
 
 module.exports = router;
